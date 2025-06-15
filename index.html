@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>An Interactive Timeline of European Public Universities</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Leaflet MarkerCluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --title-color: #ffffff;
+            --accent-color: #FFC107; /* Amber */
+            --border-color: #444;
+            --map-bg-color: #333;
+            --popup-bg: #2c2c2c;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        .main-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #map {
+            flex-grow: 1; /* Map takes up remaining space */
+            background-color: var(--map-bg-color);
+            z-index: 1;
+        }
+
+        .timeline-container {
+            background-color: #242424;
+            padding: 15px 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #play-pause-btn {
+            background: none;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            font-size: 1.5em;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+        #play-pause-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+
+        #timeline-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #444;
+            outline: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #timeline-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            border: 3px solid var(--bg-color);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        #timeline-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            border: 3px solid var(--bg-color);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        #year-display {
+            font-size: 2.5em;
+            font-weight: 600;
+            color: var(--title-color);
+            min-width: 140px;
+            text-align: center;
+        }
+        
+        /* Custom Marker Icon */
+        .university-marker {
+            background-color: var(--accent-color);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+            animation: fadeInScale 0.5s ease-out forwards;
+        }
+        
+        .university-marker.pulsing {
+             animation: fadeInScale 0.5s ease-out forwards, pulse 1.5s 1;
+        }
+
+        /* Temporary Name Label */
+        .name-label {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            animation: fadeInScale 0.4s ease-out;
+        }
+
+        /* Leaflet Dark Theme Adjustments */
+        .leaflet-control-layers-toggle {
+            background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTI4IDEwTDQgMTRMDI4IDE4VjEwWiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0yOCAyMEw0IDI0TDI4IDI4VjIwWiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0yOCAyTDQgNkwyOCAxMFYyWiIvPjwvc3ZnPg==);
+            background-color: #333;
+            border: 1px solid var(--border-color);
+        }
+        .leaflet-control-zoom-in, .leaflet-control-zoom-out {
+            background-color: #333 !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background: var(--popup-bg);
+            color: var(--text-color);
+            box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+        }
+        .leaflet-popup-content b.popup-title { font-size: 1.1em; color: var(--accent-color); font-weight: 600; display: block; margin-bottom: 5px; }
+        .leaflet-popup-content p { margin: 5px 0; font-size: 0.9em; }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .timeline-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+            #year-display {
+                font-size: 2em;
+                order: -1; /* Move year to top */
+            }
+            #play-pause-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div id="map"></div>
+        <div class="timeline-container">
+            <button id="play-pause-btn">&#9658;</button>
+            <input type="range" id="timeline-slider" min="1088" max="2025" value="1088">
+            <div id="year-display">1088</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script>
+        // 1. Initialize Map
+        const map = L.map('map', {
+            center: [50, 15], // Center on Europe
+            zoom: 4
+        });
+
+        // Use a dark tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // 2. Data Parsing from Report Text
+        const universities = [
+            // Data from previous turn...
+            { name: "University of Bologna", city: "Bologna", country: "Italy", year: 1088, lat: 44.49, lon: 11.34, note: "Considered the 'mother of European universities'; received imperial charter in 1158." },
+            { name: "University of Oxford", city: "Oxford", country: "United Kingdom", year: 1096, lat: 51.75, lon: -1.25, note: "Teaching existed from late 11th century; formal organization by early 13th century." },
+            { name: "University of Paris", city: "Paris", country: "France", year: 1150, lat: 48.85, lon: 2.35, note: "Arose from Catholic church schools; suspended 1793-1896, divided in 1970." },
+            { name: "University of Cambridge", city: "Cambridge", country: "United Kingdom", year: 1209, lat: 52.20, lon: 0.12, note: "Founded by scholars leaving Oxford after a dispute." },
+            { name: "University of Salamanca", city: "Salamanca", country: "Spain", year: 1218, lat: 40.96, lon: -5.66, note: "Oldest continuously operating university in Spain; royal charter granted in 1218." },
+            { name: "University of Padua", city: "Padua", country: "Italy", year: 1222, lat: 45.40, lon: 11.87, note: "Founded by scholars and professors leaving Bologna." },
+            { name: "University of Naples Federico II", city: "Naples", country: "Italy", year: 1224, lat: 40.85, lon: 14.25, note: "World's oldest state-funded university in continuous operation." },
+            { name: "University of Toulouse", city: "Toulouse", country: "France", year: 1229, lat: 43.60, lon: 1.44, note: "First university established by papal decree." },
+            { name: "University of Siena", city: "Siena", country: "Italy", year: 1240, lat: 43.31, lon: 11.33, note: "Originally 'Studium Senese'." },
+            { name: "University of Macerata", city: "Macerata", country: "Italy", year: 1290, lat: 43.30, lon: 13.45, note: "Established in 1290." },
+            { name: "University of Coimbra", city: "Coimbra", country: "Portugal", year: 1290, lat: 40.21, lon: -8.42, note: "Originally established in Lisbon, later moved permanently to Coimbra." },
+            { name: "Complutense University of Madrid", city: "Madrid", country: "Spain", year: 1293, lat: 40.41, lon: -3.70, note: "Originally founded in Alcalá de Henares, moved to Madrid in 1836." },
+            { name: "University of Lleida", city: "Lleida", country: "Spain", year: 1297, lat: 41.61, lon: 0.62, note: "Founded in 1297." },
+            { name: "Sapienza University of Rome", city: "Rome", country: "Italy", year: 1303, lat: 41.90, lon: 12.51, note: "Founded by Pope Boniface VIII, became a state university in 1935." },
+            { name: "University of Perugia", city: "Perugia", country: "Italy", year: 1308, lat: 43.11, lon: 12.38, note: "Attested by Papal Bull." },
+            { name: "University of Florence", city: "Florence", country: "Italy", year: 1321, lat: 43.77, lon: 11.25, note: "Founded in 1321." },
+            { name: "University of Camerino", city: "Camerino", country: "Italy", year: 1336, lat: 43.13, lon: 13.06, note: "Founded in 1336." },
+            { name: "University of Pisa", city: "Pisa", country: "Italy", year: 1343, lat: 43.72, lon: 10.40, note: "Established by papal bull." },
+            { name: "Charles University", city: "Prague", country: "Czech Republic", year: 1348, lat: 50.08, lon: 14.42, note: "Oldest university in Central Europe." },
+            { name: "University of Pavia", city: "Pavia", country: "Italy", year: 1361, lat: 45.18, lon: 9.15, note: "Founded in 1361." },
+            { name: "Jagiellonian University", city: "Kraków", country: "Poland", year: 1364, lat: 50.06, lon: 19.94, note: "Founded in 1364." },
+            { name: "University of Vienna", city: "Vienna", country: "Austria", year: 1365, lat: 48.21, lon: 16.37, note: "Oldest university in the German-speaking world." },
+            { name: "University of Pécs", city: "Pécs", country: "Hungary", year: 1367, lat: 46.07, lon: 18.23, note: "Founded by Louis I of Hungary, refounded in 1912/1921." },
+            { name: "Heidelberg University", city: "Heidelberg", country: "Germany", year: 1386, lat: 49.41, lon: 8.71, note: "Germany's most ancient university." },
+            { name: "University of Ferrara", city: "Ferrara", country: "Italy", year: 1391, lat: 44.83, lon: 11.61, note: "Founded in 1391." },
+            { name: "University of Zadar", city: "Zadar", country: "Croatia", year: 1396, lat: 44.11, lon: 15.23, note: "First university in Croatia." },
+            { name: "University of Turin", city: "Turin", country: "Italy", year: 1404, lat: 45.07, lon: 7.68, note: "Founded in 1404." },
+            { name: "Aix-Marseille University", city: "Aix-en-Provence", country: "France", year: 1409, lat: 43.52, lon: 5.44, note: "Founded in 1409 in Aix-en-Provence." },
+            { name: "Leipzig University", city: "Leipzig", country: "Germany", year: 1409, lat: 51.33, lon: 12.37, note: "Germany's second-oldest university." },
+            { name: "University of St Andrews", city: "St Andrews", country: "United Kingdom", year: 1413, lat: 56.34, lon: -2.79, note: "Oldest university in Scotland." },
+            { name: "University of Rostock", city: "Rostock", country: "Germany", year: 1419, lat: 54.09, lon: 12.14, note: "Oldest university on the Baltic Sea." },
+            { name: "KU Leuven", city: "Leuven", country: "Belgium", year: 1425, lat: 50.87, lon: 4.70, note: "Belgium's first university, closed during Napoleonic period and reopened in 1834." },
+            { name: "University of Catania", city: "Catania", country: "Italy", year: 1434, lat: 37.50, lon: 15.08, note: "Founded in 1434." },
+            { name: "University of Barcelona", city: "Barcelona", country: "Spain", year: 1450, lat: 41.38, lon: 2.16, note: "Founded in 1450." },
+            { name: "University of Glasgow", city: "Glasgow", country: "United Kingdom", year: 1451, lat: 55.87, lon: -4.28, note: "Opened by papal charter." },
+            { name: "Istanbul University", city: "Istanbul", country: "Turkey", year: 1453, lat: 41.01, lon: 28.97, note: "Considered to have been founded after the conquest of Constantinople." },
+            { name: "University of Greifswald", city: "Greifswald", country: "Germany", year: 1456, lat: 54.09, lon: 13.38, note: "Founded in 1456." },
+            { name: "University of Freiburg", city: "Freiburg", country: "Germany", year: 1457, lat: 47.99, lon: 7.85, note: "Founded in 1457." },
+            { name: "University of Basel", city: "Basel", country: "Switzerland", year: 1460, lat: 47.55, lon: 7.59, note: "Switzerland's oldest university." },
+            { name: "Ludwig Maximilian University of Munich", city: "Munich", country: "Germany", year: 1472, lat: 48.15, lon: 11.58, note: "Founded in Ingolstadt, moved to Munich in 1826." },
+            { name: "Uppsala University", city: "Uppsala", country: "Sweden", year: 1477, lat: 59.85, lon: 17.63, note: "Oldest university in Sweden and all Nordic countries." },
+            { name: "Eberhard Karls University of Tübingen", city: "Tübingen", country: "Germany", year: 1477, lat: 48.52, lon: 9.05, note: "Founded in 1477." },
+            { name: "University of Copenhagen", city: "Copenhagen", country: "Denmark", year: 1479, lat: 55.68, lon: 12.57, note: "Denmark's largest and oldest public university." },
+            { name: "University of Aberdeen", city: "Aberdeen", country: "United Kingdom", year: 1495, lat: 57.16, lon: -2.10, note: "Founded as King's College." },
+            { name: "University of Santiago de Compostela", city: "Santiago de Compostela", country: "Spain", year: 1495, lat: 42.88, lon: -8.54, note: "Began as a religious institution." },
+            { name: "University of Valencia", city: "Valencia", country: "Spain", year: 1499, lat: 39.47, lon: -0.37, note: "Founded in 1499." },
+            { name: "University of Halle-Wittenberg", city: "Halle", country: "Germany", year: 1694, lat: 51.48, lon: 11.96, note: "Cited as the 'first modern university in Europe'." },
+            { name: "University of Berlin (Humboldt)", city: "Berlin", country: "Germany", year: 1809, lat: 52.51, lon: 13.39, note: "Pioneered the Humboldtian model of higher education." }
+        ];
+
+        // Sort universities by year to find the first one easily
+        universities.sort((a, b) => a.year - b.year);
+
+        const firstYear = universities.length > 0 ? universities[0].year : 1000;
+        const lastYear = 2025;
+
+        // 3. UI Elements and Event Listeners
+        const slider = document.getElementById('timeline-slider');
+        const yearDisplay = document.getElementById('year-display');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+
+        // Set initial slider and display values
+        slider.min = firstYear;
+        slider.max = lastYear;
+        slider.value = firstYear;
+        yearDisplay.textContent = firstYear;
+
+        let animationInterval = null;
+        let isPlaying = false;
+
+        // Create a custom icon for markers
+        const uniIcon = L.divIcon({
+            className: 'university-marker',
+            iconSize: [12, 12]
+        });
+        
+        // Use a MarkerClusterGroup for performance with many markers
+        const markerCluster = L.markerClusterGroup({
+            showCoverageOnHover: false,
+            maxClusterRadius: 60,
+            iconCreateFunction: function(cluster) {
+                // Use default styling for clusters
+                return L.divIcon({ html: '<div><span>' + cluster.getChildCount() + '</span></div>', className: 'marker-cluster marker-cluster-small', iconSize: new L.Point(40, 40) });
+            }
+        });
+
+        // Pre-create all markers and store them with their data
+        const allMarkers = universities.map(uni => {
+            const marker = L.marker([uni.lat, uni.lon], { icon: uniIcon });
+            marker.bindPopup(`<b>${uni.name}</b><p>${uni.city}, ${uni.country}</p><p>Founded: ${uni.year}</p><p><i>${uni.note}</i></p>`);
+            return { marker: marker, data: uni };
+        });
+
+        map.addLayer(markerCluster);
+
+        // Function to update the map based on the current year
+        function updateMap(year) {
+            markerCluster.clearLayers(); // Clear existing markers from the cluster group
+            const markersToShow = [];
+            
+            allMarkers.forEach(item => {
+                if (item.data.year <= year) {
+                    markersToShow.push(item.marker);
+                    
+                    // NEW: Show name label if the university was founded in the current year
+                    if (item.data.year === year) {
+                        // Add pulsing animation to the icon
+                        item.marker.getElement()?.classList.add('pulsing');
+                        // Create a temporary label
+                        const nameLabel = L.tooltip({
+                            permanent: true,
+                            direction: 'top',
+                            className: 'name-label',
+                            offset: [0, -10]
+                        })
+                        .setLatLng(item.marker.getLatLng())
+                        .setContent(item.data.name)
+                        .addTo(map);
+
+                        // Remove the label and pulse after a delay
+                        setTimeout(() => {
+                           map.removeLayer(nameLabel);
+                           item.marker.getElement()?.classList.remove('pulsing');
+                        }, 2500); // Label visible for 2.5 seconds
+                    }
+                }
+            });
+            
+            markerCluster.addLayers(markersToShow); // Add only the visible markers
+        }
+        
+        // Handle timeline slider input
+        slider.addEventListener('input', (e) => {
+            const year = parseInt(e.target.value);
+            yearDisplay.textContent = year;
+            updateMap(year);
+        });
+
+        // Handle Play/Pause button
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                // Pause the animation
+                clearInterval(animationInterval);
+                playPauseBtn.innerHTML = '&#9658;'; // Play icon
+            } else {
+                // Start the animation
+                playPauseBtn.innerHTML = '&#10074;&#10074;'; // Pause icon
+                if (parseInt(slider.value) >= parseInt(slider.max)) {
+                    slider.value = slider.min; // Reset if at the end
+                }
+                animationInterval = setInterval(() => {
+                    let currentYear = parseInt(slider.value);
+                    if (currentYear < parseInt(slider.max)) {
+                        slider.value = currentYear + 1;
+                        slider.dispatchEvent(new Event('input'));
+                    } else {
+                        // Reached the end, so pause
+                        clearInterval(animationInterval);
+                        playPauseBtn.innerHTML = '&#9658;';
+                        isPlaying = false;
+                    }
+                }, 40); // Speed of animation (milliseconds per year)
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Initial map state
+        updateMap(firstYear);
+
+    </script>
+</body>
+</html>
