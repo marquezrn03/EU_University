@@ -232,7 +232,7 @@
 
         // 2. Data Parsing from Report Text
         const universities = [
-            // Data from previous turn...
+            // Pre-1500
             { name: "University of Bologna", city: "Bologna", country: "Italy", year: 1088, lat: 44.49, lon: 11.34, note: "Considered the 'mother of European universities'; received imperial charter in 1158." },
             { name: "University of Oxford", city: "Oxford", country: "United Kingdom", year: 1096, lat: 51.75, lon: -1.25, note: "Teaching existed from late 11th century; formal organization by early 13th century." },
             { name: "University of Paris", city: "Paris", country: "France", year: 1150, lat: 48.85, lon: 2.35, note: "Arose from Catholic church schools; suspended 1793-1896, divided in 1970." },
@@ -264,7 +264,7 @@
             { name: "Leipzig University", city: "Leipzig", country: "Germany", year: 1409, lat: 51.33, lon: 12.37, note: "Germany's second-oldest university." },
             { name: "University of St Andrews", city: "St Andrews", country: "United Kingdom", year: 1413, lat: 56.34, lon: -2.79, note: "Oldest university in Scotland." },
             { name: "University of Rostock", city: "Rostock", country: "Germany", year: 1419, lat: 54.09, lon: 12.14, note: "Oldest university on the Baltic Sea." },
-            { name: "KU Leuven", city: "Leuven", country: "Belgium", year: 1425, lat: 50.87, lon: 4.70, note: "Belgium's first university, closed during Napoleonic period and reopened in 1834." },
+            { name: "KU Leuven", city: "Leuven", country: "Belgium", year: 1425, lat: 50.87, lon: 4.70, note: "Belgium's first university, closed during the Napoleonic period and reopened in 1834." },
             { name: "University of Catania", city: "Catania", country: "Italy", year: 1434, lat: 37.50, lon: 15.08, note: "Founded in 1434." },
             { name: "University of Barcelona", city: "Barcelona", country: "Spain", year: 1450, lat: 41.38, lon: 2.16, note: "Founded in 1450." },
             { name: "University of Glasgow", city: "Glasgow", country: "United Kingdom", year: 1451, lat: 55.87, lon: -4.28, note: "Opened by papal charter." },
@@ -279,7 +279,38 @@
             { name: "University of Aberdeen", city: "Aberdeen", country: "United Kingdom", year: 1495, lat: 57.16, lon: -2.10, note: "Founded as King's College." },
             { name: "University of Santiago de Compostela", city: "Santiago de Compostela", country: "Spain", year: 1495, lat: 42.88, lon: -8.54, note: "Began as a religious institution." },
             { name: "University of Valencia", city: "Valencia", country: "Spain", year: 1499, lat: 39.47, lon: -0.37, note: "Founded in 1499." },
-            { name: "University of Halle-Wittenberg", city: "Halle", country: "Germany", year: 1694, lat: 51.48, lon: 11.96, note: "Cited as the 'first modern university in Europe'." },
+
+            // 1500-1800 Additions
+            { name: "University of Halle-Wittenberg", city: "Halle", country: "Germany", year: 1502, lat: 51.48, lon: 11.96, note: "University of Wittenberg founded 1502, merged with Halle (1694) in 1817." },
+            { name: "University of Seville", city: "Seville", country: "Spain", year: 1505, lat: 37.38, lon: -5.99, note: "Founded as Colegio de Santa María de Jesús." },
+            { name: "University of Marburg", city: "Marburg", country: "Germany", year: 1527, lat: 50.81, lon: 8.77, note: "First Protestant university in the world." },
+            { name: "University of Granada", city: "Granada", country: "Spain", year: 1531, lat: 37.17, lon: -3.59, note: "Founded by emperor Charles V." },
+            { name: "University of Debrecen", city: "Debrecen", country: "Hungary", year: 1538, lat: 47.55, lon: 21.62, note: "Founded as the Calvinist College of Debrecen." },
+            { name: "University of Königsberg", city: "Kaliningrad", country: "Russia", year: 1544, lat: 54.71, lon: 20.51, note: "Founded as Albertina. Now Immanuel Kant Baltic Federal University." },
+            { name: "University of Messina", city: "Messina", country: "Italy", year: 1548, lat: 38.19, lon: 15.55, note: "Founded by Pope Paul III." },
+            { name: "University of Jena", city: "Jena", country: "Germany", year: 1558, lat: 50.92, lon: 11.58, note: "Established by Emperor Ferdinand I." },
+            { name: "University of Geneva", city: "Geneva", country: "Switzerland", year: 1559, lat: 46.20, lon: 6.14, note: "Founded by John Calvin as a theological seminary." },
+            { name: "University of Évora", city: "Évora", country: "Portugal", year: 1559, lat: 38.57, lon: -7.91, note: "Founded as a Jesuit college." },
+            { name: "Vilnius University", city: "Vilnius", country: "Lithuania", year: 1579, lat: 54.68, lon: 25.28, note: "Oldest university in the Baltic states." },
+            { name: "University of Würzburg", city: "Würzburg", country: "Germany", year: 1582, lat: 49.79, lon: 9.95, note: "Initially founded in 1402, but refounded in 1582." },
+            { name: "University of Graz", city: "Graz", country: "Austria", year: 1585, lat: 47.07, lon: 15.45, note: "Founded by Archduke Charles II of Austria." },
+            { name: "Trinity College Dublin", city: "Dublin", country: "Ireland", year: 1592, lat: 53.34, lon: -6.25, note: "Founded by Queen Elizabeth I." },
+            { name: "University of Strasbourg", city: "Strasbourg", country: "France", year: 1621, lat: 48.58, lon: 7.76, note: "Emerged from a Protestant German-speaking gymnasium founded in 1538." },
+            { name: "University of Amsterdam", city: "Amsterdam", country: "Netherlands", year: 1632, lat: 52.36, lon: 4.89, note: "Traces its roots to the Athenaeum Illustre." },
+            { name: "University of Tartu", city: "Tartu", country: "Estonia", year: 1632, lat: 58.38, lon: 26.72, note: "Founded by King Gustavus Adolphus of Sweden." },
+            { name: "Eötvös Loránd University", city: "Budapest", country: "Hungary", year: 1635, lat: 47.49, lon: 19.06, note: "Founded in Nagyszombat, moved to Budapest." },
+            { name: "University of Utrecht", city: "Utrecht", country: "Netherlands", year: 1636, lat: 52.09, lon: 5.12, note: "One of the oldest universities in the Netherlands." },
+            { name: "University of Helsinki", city: "Helsinki", country: "Finland", year: 1640, lat: 60.17, lon: 24.95, note: "Founded in Turku (Åbo), moved to Helsinki in 1827." },
+            { name: "Lviv University", city: "Lviv", country: "Ukraine", year: 1661, lat: 49.84, lon: 24.02, note: "Oldest continuously operating university in Ukraine." },
+            { name: "University of Kiel", city: "Kiel", country: "Germany", year: 1665, lat: 54.33, lon: 10.13, note: "Founded as the Christiana Albertina." },
+            { name: "Lund University", city: "Lund", country: "Sweden", year: 1666, lat: 55.70, lon: 13.19, note: "One of Scandinavia's largest institutions for education and research." },
+            { name: "University of Innsbruck", city: "Innsbruck", country: "Austria", year: 1669, lat: 47.26, lon: 11.39, note: "Founded by Emperor Leopold I." },
+            { name: "University of Zagreb", city: "Zagreb", country: "Croatia", year: 1669, lat: 45.81, lon: 15.97, note: "Oldest and largest continuously operating Croatian university." },
+            { name: "University of Wrocław", city: "Wrocław", country: "Poland", year: 1702, lat: 51.11, lon: 17.03, note: "Founded as a Jesuit academy, Leopoldina." },
+            { name: "Semmelweis University", city: "Budapest", country: "Hungary", year: 1769, lat: 47.48, lon: 19.06, note: "Founded as a medical faculty of Nagyszombat University." },
+            { name: "Moscow State University", city: "Moscow", country: "Russia", year: 1755, lat: 55.70, lon: 37.53, note: "Founded on the initiative of Ivan Shuvalov and Mikhail Lomonosov." },
+            
+            // From other sections
             { name: "University of Berlin (Humboldt)", city: "Berlin", country: "Germany", year: 1809, lat: 52.51, lon: 13.39, note: "Pioneered the Humboldtian model of higher education." }
         ];
 
@@ -321,14 +352,13 @@
         // Pre-create all markers and store them with their data
         const allMarkers = universities.map(uni => {
             const marker = L.marker([uni.lat, uni.lon], { icon: uniIcon });
-            // Bind the popup for clicking
             marker.bindPopup(`<b>${uni.name}</b><p>${uni.city}, ${uni.country}</p><p>Founded: ${uni.year}</p><p><i>${uni.note}</i></p>`);
             // Bind the permanent tooltip for the name
             marker.bindTooltip(uni.name, { 
                 permanent: true, 
                 direction: 'top',
                 className: 'name-label-permanent',
-                offset: [0, -8] // Adjust offset to be above the marker
+                offset: [0, -8]
             });
             return { marker: marker, data: uni };
         });
@@ -337,7 +367,7 @@
 
         // Function to update the map based on the current year
         function updateMap(year) {
-            markerCluster.clearLayers(); // Clear existing markers
+            markerCluster.clearLayers();
             const markersToShow = [];
             
             allMarkers.forEach(item => {
@@ -375,14 +405,14 @@
             animationInterval = setInterval(() => {
                 let currentYear = parseInt(slider.value);
                 if (currentYear < parseInt(slider.max)) {
-                    // Speed up animation over time
-                    const increment = Math.max(1, Math.floor((currentYear - 1000) / 100));
+                    // Slower, more consistent speed
+                    const increment = 1;
                     slider.value = currentYear + increment;
                     slider.dispatchEvent(new Event('input'));
                 } else {
                     pauseAnimation();
                 }
-            }, 30); // Speed of animation
+            }, 80); // SLOWER animation speed (80 milliseconds per year step)
         }
 
         function pauseAnimation() {
@@ -415,4 +445,5 @@
     </script>
 </body>
 </html>
+
 
