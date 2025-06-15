@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>An Interactive Timeline of European Public Universities</title>
+    <title>An Interactive Timeline of European Public Universities (1088-1810)</title>
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -209,7 +209,7 @@
         <div id="map"></div>
         <div class="timeline-container">
             <button id="play-pause-btn">&#9658;</button>
-            <input type="range" id="timeline-slider" min="1088" max="2025" value="1088">
+            <input type="range" id="timeline-slider" min="1088" max="1810" value="1088">
             <div id="year-display">1088</div>
         </div>
     </div>
@@ -230,7 +230,7 @@
             maxZoom: 19
         }).addTo(map);
 
-        // 2. Data Parsing from Report Text
+        // 2. Comprehensive University Data up to 1810
         const universities = [
             // Pre-1500
             { name: "University of Bologna", city: "Bologna", country: "Italy", year: 1088, lat: 44.49, lon: 11.34, note: "Considered the 'mother of European universities'; received imperial charter in 1158." },
@@ -265,6 +265,7 @@
             { name: "University of St Andrews", city: "St Andrews", country: "United Kingdom", year: 1413, lat: 56.34, lon: -2.79, note: "Oldest university in Scotland." },
             { name: "University of Rostock", city: "Rostock", country: "Germany", year: 1419, lat: 54.09, lon: 12.14, note: "Oldest university on the Baltic Sea." },
             { name: "KU Leuven", city: "Leuven", country: "Belgium", year: 1425, lat: 50.87, lon: 4.70, note: "Belgium's first university, closed during the Napoleonic period and reopened in 1834." },
+            { name: "University of Poitiers", city: "Poitiers", country: "France", year: 1431, lat: 46.58, lon: 0.34, note: "Founded by Pope Eugene IV." },
             { name: "University of Catania", city: "Catania", country: "Italy", year: 1434, lat: 37.50, lon: 15.08, note: "Founded in 1434." },
             { name: "University of Barcelona", city: "Barcelona", country: "Spain", year: 1450, lat: 41.38, lon: 2.16, note: "Founded in 1450." },
             { name: "University of Glasgow", city: "Glasgow", country: "United Kingdom", year: 1451, lat: 55.87, lon: -4.28, note: "Opened by papal charter." },
@@ -280,7 +281,7 @@
             { name: "University of Santiago de Compostela", city: "Santiago de Compostela", country: "Spain", year: 1495, lat: 42.88, lon: -8.54, note: "Began as a religious institution." },
             { name: "University of Valencia", city: "Valencia", country: "Spain", year: 1499, lat: 39.47, lon: -0.37, note: "Founded in 1499." },
 
-            // 1500-1800 Additions
+            // 1500-1800
             { name: "University of Halle-Wittenberg", city: "Halle", country: "Germany", year: 1502, lat: 51.48, lon: 11.96, note: "University of Wittenberg founded 1502, merged with Halle (1694) in 1817." },
             { name: "University of Seville", city: "Seville", country: "Spain", year: 1505, lat: 37.38, lon: -5.99, note: "Founded as Colegio de Santa María de Jesús." },
             { name: "University of Marburg", city: "Marburg", country: "Germany", year: 1527, lat: 50.81, lon: 8.77, note: "First Protestant university in the world." },
@@ -307,18 +308,19 @@
             { name: "University of Innsbruck", city: "Innsbruck", country: "Austria", year: 1669, lat: 47.26, lon: 11.39, note: "Founded by Emperor Leopold I." },
             { name: "University of Zagreb", city: "Zagreb", country: "Croatia", year: 1669, lat: 45.81, lon: 15.97, note: "Oldest and largest continuously operating Croatian university." },
             { name: "University of Wrocław", city: "Wrocław", country: "Poland", year: 1702, lat: 51.11, lon: 17.03, note: "Founded as a Jesuit academy, Leopoldina." },
+            { name: "University of Göttingen", city: "Göttingen", country: "Germany", year: 1734, lat: 51.53, lon: 9.93, note: "A leading university of the German Enlightenment." },
+            { name: "University of Erlangen-Nuremberg", city: "Erlangen", country: "Germany", year: 1743, lat: 49.59, lon: 11.00, note: "Founded by Frederick, Margrave of Brandenburg-Bayreuth." },
             { name: "Semmelweis University", city: "Budapest", country: "Hungary", year: 1769, lat: 47.48, lon: 19.06, note: "Founded as a medical faculty of Nagyszombat University." },
             { name: "Moscow State University", city: "Moscow", country: "Russia", year: 1755, lat: 55.70, lon: 37.53, note: "Founded on the initiative of Ivan Shuvalov and Mikhail Lomonosov." },
-            
-            // From other sections
-            { name: "University of Berlin (Humboldt)", city: "Berlin", country: "Germany", year: 1809, lat: 52.51, lon: 13.39, note: "Pioneered the Humboldtian model of higher education." }
+            { name: "University of Belgrade", city: "Belgrade", country: "Serbia", year: 1808, lat: 44.81, lon: 20.46, note: "Founded as Belgrade's Higher School." },
+            { name: "Humboldt University of Berlin", city: "Berlin", country: "Germany", year: 1810, lat: 52.51, lon: 13.39, note: "Pioneered the Humboldtian model of higher education." }
         ];
 
         // Sort universities by year to find the first one easily
         universities.sort((a, b) => a.year - b.year);
 
         const firstYear = universities.length > 0 ? universities[0].year : 1000;
-        const lastYear = 2025;
+        const lastYear = 1810; // UPDATED: Focus on foundational period
 
         // 3. UI Elements and Event Listeners
         const slider = document.getElementById('timeline-slider');
@@ -343,7 +345,7 @@
         // Use a MarkerClusterGroup for performance
         const markerCluster = L.markerClusterGroup({
             showCoverageOnHover: false,
-            maxClusterRadius: 40, // Reduced radius for a denser look
+            maxClusterRadius: 40, 
             iconCreateFunction: function(cluster) {
                 return L.divIcon({ html: '<div><span>' + cluster.getChildCount() + '</span></div>', className: 'marker-cluster marker-cluster-small', iconSize: new L.Point(40, 40) });
             }
@@ -353,7 +355,6 @@
         const allMarkers = universities.map(uni => {
             const marker = L.marker([uni.lat, uni.lon], { icon: uniIcon });
             marker.bindPopup(`<b>${uni.name}</b><p>${uni.city}, ${uni.country}</p><p>Founded: ${uni.year}</p><p><i>${uni.note}</i></p>`);
-            // Bind the permanent tooltip for the name
             marker.bindTooltip(uni.name, { 
                 permanent: true, 
                 direction: 'top',
@@ -374,12 +375,11 @@
                 if (item.data.year <= year) {
                     markersToShow.push(item.marker);
                     
-                    // Add pulsing animation if founded in the current year
                     if (item.data.year === year) {
                         item.marker.getElement()?.classList.add('pulsing');
                         setTimeout(() => {
                            item.marker.getElement()?.classList.remove('pulsing');
-                        }, 1500);
+                        }, 2000); // Pulse for 2 seconds
                     }
                 }
             });
@@ -395,7 +395,7 @@
         });
 
         function startAnimation() {
-            if (isPlaying) return; // Prevent multiple intervals
+            if (isPlaying) return; 
             
             isPlaying = true;
             playPauseBtn.innerHTML = '&#10074;&#10074;'; // Pause icon
@@ -405,14 +405,13 @@
             animationInterval = setInterval(() => {
                 let currentYear = parseInt(slider.value);
                 if (currentYear < parseInt(slider.max)) {
-                    // Slower, more consistent speed
                     const increment = 1;
                     slider.value = currentYear + increment;
                     slider.dispatchEvent(new Event('input'));
                 } else {
                     pauseAnimation();
                 }
-            }, 80); // SLOWER animation speed (80 milliseconds per year step)
+            }, 120); // SLOWER animation speed (120 milliseconds per year step)
         }
 
         function pauseAnimation() {
@@ -434,10 +433,8 @@
 
         // Initial setup on page load
         function initialize() {
-             // Initial map state
             updateMap(firstYear);
-            // Auto-play on load
-            setTimeout(startAnimation, 1000); // Small delay to ensure everything is rendered
+            setTimeout(startAnimation, 1500); // Small delay to ensure everything is rendered
         }
         
         initialize();
@@ -445,5 +442,4 @@
     </script>
 </body>
 </html>
-
 
